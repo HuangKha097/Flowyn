@@ -7,9 +7,19 @@ import { TeamsModule } from './teams/teams.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { AiModule } from './ai/ai.module';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import mikroOrmConfig from './mikro-orm.config';
 
 @Module({
-  imports: [AuthModule, UsersModule, TeamsModule, ProjectsModule, TasksModule, AiModule],
+  imports: [
+    MikroOrmModule.forRoot(mikroOrmConfig),
+    AuthModule,
+    UsersModule,
+    TeamsModule,
+    ProjectsModule,
+    TasksModule,
+    AiModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -19,7 +19,7 @@ const fade = {
 
 export function MemberDashboard() {
   const tasks = useTaskStore((s) => s.tasks);
-  const me = currentUserByRole.member;
+  const me = currentUserByRole.staff;
   const user = getMember(me);
   const myTasks = tasks.filter((t) => t.assigneeId === me && t.day === 0).sort((a, b) => a.start - b.start);
   const active = myTasks.find((t) => t.status === "progress");

@@ -1,15 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Card, PageHeader, SectionTitle } from "@/components/ui/surface";
 import { useRoleStore } from "@/stores/role-store";
-import { currentUserByRole, getMember } from "@/lib/mock-data";
-import { Avatar } from "@/components/ui/member-avatar";
 
 
 export default function SettingsPage() {
-  const role = useRoleStore((s) => s.role);
-  const user = getMember(currentUserByRole[role]);
+  const user = useRoleStore((state) => state.user);
 
   return (
     <div className="space-y-6 p-6">
@@ -19,15 +15,19 @@ export default function SettingsPage() {
           <SectionTitle>Profile</SectionTitle>
           {user && (
             <div className="mt-4 flex items-center gap-3">
-              <Avatar memberId={user.id} size={52} />
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                {user.name.split(" ").filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+              </div>
               <div>
                 <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-muted-foreground">{user.title}</p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
             </div>
           )}
           <div className="mt-5 space-y-3">
             <Field label="Display name" value={user?.name ?? ""} />
+            <Field label="Email" value={user?.email ?? ""} readOnly />
+            <Field label="Role" value={user?.role ?? ""} readOnly />
             <Field label="Working hours" value="8:30 AM – 6:00 PM" />
           </div>
         </Card>
@@ -46,12 +46,13 @@ export default function SettingsPage() {
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, readOnly = false }: { label: string; value: string; readOnly?: boolean }) {
   return (
     <div>
       <label className="text-xs font-medium text-muted-foreground">{label}</label>
       <input
         defaultValue={value}
+        readOnly={readOnly}
         className="mt-1 h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none transition focus:border-primary focus:shadow-[0_0_0_4px_oklch(0.95_0.13_125_/_0.25)]"
       />
     </div>

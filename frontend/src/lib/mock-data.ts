@@ -1,4 +1,4 @@
-export type Role = "member" | "head" | "admin";
+export type Role = "staff" | "manager" | "admin";
 
 export type TaskStatus = "todo" | "progress" | "review" | "done" | "overdue";
 export type Priority = "low" | "medium" | "high";
@@ -41,16 +41,16 @@ export interface Sprint {
 }
 
 export const members: Member[] = [
-  { id: "m1", name: "Minh Tran", initials: "MT", color: "oklch(0.86 0.16 123)", role: "member", title: "Frontend Engineer" },
-  { id: "m2", name: "An Pham", initials: "AP", color: "oklch(0.8 0.1 230)", role: "member", title: "Backend Engineer" },
-  { id: "m3", name: "Nam Le", initials: "NL", color: "oklch(0.82 0.13 60)", role: "member", title: "Designer" },
-  { id: "m4", name: "Linh Vo", initials: "LV", color: "oklch(0.78 0.13 350)", role: "head", title: "Team Head" },
+  { id: "m1", name: "Minh Tran", initials: "MT", color: "oklch(0.86 0.16 123)", role: "staff", title: "Frontend Engineer" },
+  { id: "m2", name: "An Pham", initials: "AP", color: "oklch(0.8 0.1 230)", role: "staff", title: "Backend Engineer" },
+  { id: "m3", name: "Nam Le", initials: "NL", color: "oklch(0.82 0.13 60)", role: "staff", title: "Designer" },
+  { id: "m4", name: "Linh Vo", initials: "LV", color: "oklch(0.78 0.13 350)", role: "manager", title: "Team Manager" },
   { id: "m5", name: "Khoa Bui", initials: "KB", color: "oklch(0.75 0.12 290)", role: "admin", title: "Workspace Admin" },
 ];
 
 export const currentUserByRole: Record<Role, string> = {
-  member: "m1",
-  head: "m4",
+  staff: "m1",
+  manager: "m4",
   admin: "m5",
 };
 

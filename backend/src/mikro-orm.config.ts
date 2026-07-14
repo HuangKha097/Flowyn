@@ -1,22 +1,19 @@
 import 'dotenv/config';
-import { Options, MySqlDriver } from '@mikro-orm/mysql';
+import { Options, MongoDriver } from '@mikro-orm/mongodb';
 import { User } from './entities/User.entity';
 import { Team } from './entities/Team.entity';
 import { Project } from './entities/Project.entity';
 import { Task } from './entities/Task.entity';
+import { Invitation } from './entities/Invitation.entity';
+import { Schedule } from './entities/Schedule.entity';
 
 const config: Options = {
-  driver: MySqlDriver,
+  driver: MongoDriver,
+  clientUrl: process.env.DATABASE_URL,
   dbName: process.env.DB_NAME || 'flowyn',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  entities: [User, Team, Project, Task],
+  entities: [User, Team, Project, Task, Invitation, Schedule],
+  ensureIndexes: true,
   debug: process.env.NODE_ENV !== 'production',
-  migrations: {
-    path: './migrations',
-  },
 };
 
 export default config;

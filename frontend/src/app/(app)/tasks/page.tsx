@@ -26,8 +26,8 @@ export default function TasksPage() {
   const role = useRoleStore((s) => s.role);
   const [filter, setFilter] = useState<TaskStatus | "all">("all");
 
-  const isTeam = role !== "member";
-  let tasks = isTeam ? allTasks : allTasks.filter((t) => t.assigneeId === currentUserByRole.member);
+  const isTeam = role !== "staff";
+  let tasks = isTeam ? allTasks : allTasks.filter((t) => t.assigneeId === currentUserByRole.staff);
   if (filter !== "all") tasks = tasks.filter((t) => t.status === filter);
   tasks = [...tasks].sort((a, b) => a.day - b.day || a.start - b.start);
 

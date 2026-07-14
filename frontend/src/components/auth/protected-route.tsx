@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRoleStore } from "@/stores/role-store";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated } = useRoleStore();
-  const [mounted, setMounted] = useState(false);
+  const { isAuthenticated, status, hydrate } = useRoleStore();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (status === "checking") void hydrate();
+  }, [status, hydrate]);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated) {
-      router.push("/login");
+    if (status === "guest" && !isAuthenticated) {
+      router.replace("/login");
     }
-  }, [mounted, isAuthenticated, router]);
+  }, [status, isAuthenticated, router]);
 
-  if (!mounted || !isAuthenticated) {
-    return null; // Or a loading spinner
+  if (status === "checking" || !isAuthenticated) {
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Restoring your session…</div>;
   }
 
   return <>{children}</>;

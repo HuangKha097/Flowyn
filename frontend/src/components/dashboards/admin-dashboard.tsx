@@ -33,7 +33,7 @@ const metrics = [
 
 export function AdminDashboard() {
   const tasks = useTaskStore((s) => s.tasks);
-  const teamMembers = members.filter((m) => m.role === "member");
+  const teamMembers = members.filter((m) => m.role === "staff");
 
   // Conflict detection: overlapping tasks per member
   const conflicts: { member: string; a: string; b: string }[] = [];

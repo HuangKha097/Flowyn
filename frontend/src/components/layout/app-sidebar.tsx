@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Calendar,
@@ -16,9 +15,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRoleStore } from "@/stores/role-store";
-import { currentUserByRole } from "@/lib/mock-data";
-import { Avatar } from "@/components/ui/member-avatar";
-import { getMember } from "@/lib/mock-data";
 
 const nav = [
   { label: "Dashboard", to: "/", icon: LayoutDashboard },
@@ -32,8 +28,7 @@ const nav = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const role = useRoleStore((s) => s.role);
-  const user = getMember(currentUserByRole[role]);
+  const user = useRoleStore((state) => state.user);
 
   return (
     <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-[280px] shrink-0 flex-col rounded-3xl border border-border bg-sidebar-bg p-5 lg:flex">
@@ -72,13 +67,19 @@ export function AppSidebar() {
 
       {user && (
         <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border-soft bg-surface p-3">
-          <Avatar memberId={user.id} size={38} />
+          <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+            {initials(user.name)}
+          </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{user.name}</p>
-            <p className="truncate text-xs text-muted-foreground">{user.title}</p>
+            <p className="truncate text-xs capitalize text-muted-foreground">{user.role}</p>
           </div>
         </div>
       )}
     </aside>
   );
+}
+
+function initials(name: string) {
+  return name.split(" ").filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
 }

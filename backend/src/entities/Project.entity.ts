@@ -1,10 +1,15 @@
-import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, SerializedPrimaryKey, Property, ManyToOne, ManyToMany, OneToMany, Collection } from '@mikro-orm/core';
+import { ObjectId } from '@mikro-orm/mongodb';
 import { Team } from './Team.entity';
 import { Task } from './Task.entity';
+import { User } from './User.entity';
 
 @Entity()
 export class Project {
   @PrimaryKey()
+  _id = new ObjectId();
+
+  @SerializedPrimaryKey()
   id!: string;
 
   @Property()
@@ -13,8 +18,14 @@ export class Project {
   @Property()
   color!: string;
 
-  @ManyToOne(() => Team)
-  team!: Team;
+  @ManyToOne(() => Team, { nullable: true })
+  team?: Team;
+
+  @ManyToOne(() => User)
+  manager!: User;
+
+  @ManyToMany(() => User, undefined, { owner: true })
+  staff = new Collection<User>(this);
 
   @OneToMany(() => Task, task => task.project)
   tasks = new Collection<Task>(this);

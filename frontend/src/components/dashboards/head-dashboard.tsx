@@ -17,7 +17,7 @@ const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 } };
 
 export function HeadDashboard() {
   const tasks = useTaskStore((s) => s.tasks);
-  const teamMembers = members.filter((m) => m.role === "member");
+  const teamMembers = members.filter((m) => m.role === "staff");
   const blocked = tasks.filter((t) => t.status === "overdue");
 
   return (

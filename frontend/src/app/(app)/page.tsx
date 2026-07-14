@@ -8,6 +8,6 @@ import { AdminDashboard } from "@/components/dashboards/admin-dashboard";
 export default function Dashboard() {
   const role = useRoleStore((s) => s.role);
   if (role === "admin") return <AdminDashboard />;
-  if (role === "head") return <HeadDashboard />;
+  if (role === "manager") return <HeadDashboard />;
   return <MemberDashboard />;
 }

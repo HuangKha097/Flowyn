@@ -1,16 +1,20 @@
-import { Entity, PrimaryKey, Property, Enum, ManyToOne, OneToMany, Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, SerializedPrimaryKey, Property, Enum, ManyToOne, OneToMany, Collection } from '@mikro-orm/core';
+import { ObjectId } from '@mikro-orm/mongodb';
 import { Team } from './Team.entity';
 import { Task } from './Task.entity';
 
 export enum Role {
   ADMIN = 'admin',
-  HEAD = 'head',
-  MEMBER = 'member',
+  MANAGER = 'manager',
+  STAFF = 'staff',
 }
 
 @Entity()
 export class User {
   @PrimaryKey()
+  _id = new ObjectId();
+
+  @SerializedPrimaryKey()
   id!: string;
 
   @Property()
@@ -23,9 +27,12 @@ export class User {
   password!: string;
 
   @Enum(() => Role)
-  role: Role = Role.MEMBER;
+  role: Role = Role.STAFF;
 
-  @Property()
+  @Property({ nullable: true, hidden: true })
+  refreshTokenHash?: string;
+
+  @Property({ nullable: true })
   avatarUrl?: string;
 
   @Property({ type: 'json', nullable: true })

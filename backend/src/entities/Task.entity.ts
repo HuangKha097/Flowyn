@@ -1,4 +1,5 @@
-import { Entity, PrimaryKey, Property, Enum, ManyToOne, ManyToMany, Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, SerializedPrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
+import { ObjectId } from '@mikro-orm/mongodb';
 import { User } from './User.entity';
 import { Project } from './Project.entity';
 
@@ -19,6 +20,9 @@ export enum Priority {
 @Entity()
 export class Task {
   @PrimaryKey()
+  _id = new ObjectId();
+
+  @SerializedPrimaryKey()
   id!: string;
 
   @Property()

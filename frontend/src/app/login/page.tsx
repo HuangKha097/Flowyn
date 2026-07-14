@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { 
   Sparkles, 
-  Shield, 
-  Users, 
   User, 
   ArrowRight, 
   Mail, 
@@ -19,46 +17,15 @@ import {
   Zap
 } from "lucide-react";
 import { useRoleStore } from "@/stores/role-store";
-import type { Role } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
-const demoAccounts = [
-  {
-    id: "admin",
-    name: "Khoa Bui",
-    title: "Workspace Admin",
-    role: "admin" as Role,
-    icon: Shield,
-    color: "bg-[oklch(0.75_0.12_290)] text-white",
-    description: "Full system access & admin tools."
-  },
-  {
-    id: "head",
-    name: "Linh Vo",
-    title: "Team Head",
-    role: "head" as Role,
-    icon: Users,
-    color: "bg-[oklch(0.78_0.13_350)] text-white",
-    description: "Manage team sprints & workloads."
-  },
-  {
-    id: "member",
-    name: "Minh Tran",
-    title: "Frontend Engineer",
-    role: "member" as Role,
-    icon: User,
-    color: "bg-[oklch(0.86_0.16_123)] text-[oklch(0.18_0_0)]",
-    description: "Focus mode & task management."
-  },
-];
-
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useRoleStore();
+  const { login, register } = useRoleStore();
 
   const [activeTab, setActiveTab] = React.useState<"signin" | "signup">("signin");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -67,25 +34,12 @@ export default function LoginPage() {
   // Sign in fields
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [rememberMe, setRememberMe] = React.useState(false);
 
   // Sign up fields
   const [name, setName] = React.useState("");
   const [registerEmail, setRegisterEmail] = React.useState("");
   const [registerPassword, setRegisterPassword] = React.useState("");
-  const [selectedRole, setSelectedRole] = React.useState<Role>("member");
-
-  const handleDemoLogin = (role: Role, name: string) => {
-    toast.loading("Signing in as demo user...");
-    setTimeout(() => {
-      login(role);
-      toast.dismiss();
-      toast.success(`Welcome back, ${name}!`);
-      router.push("/");
-    }, 800);
-  };
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please fill in all fields.");
@@ -100,27 +54,18 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simple logic to set roles based on inputs for testing
-      let role: Role = "member";
-      let loginName = email.split("@")[0];
-      loginName = loginName.charAt(0).toUpperCase() + loginName.slice(1);
-
-      if (email.toLowerCase().includes("admin")) {
-        role = "admin";
-      } else if (email.toLowerCase().includes("head") || email.toLowerCase().includes("lead")) {
-        role = "head";
-      }
-
-      login(role);
-      toast.success(`Logged in successfully as ${loginName}!`);
+    try {
+      await login(email, password);
+      toast.success("Logged in successfully!");
       router.push("/");
-    }, 1200);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to sign in");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !registerEmail || !registerPassword) {
       toast.error("Please fill in all fields.");
@@ -134,19 +79,21 @@ export default function LoginPage() {
       return;
     }
 
-    if (registerPassword.length < 6) {
-      toast.error("Password must be at least 6 characters.");
+    if (registerPassword.length < 8) {
+      toast.error("Password must be at least 8 characters.");
       return;
     }
 
     setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      login(selectedRole);
+    try {
+      await register(name, registerEmail, registerPassword);
       toast.success(`Account successfully created for ${name}!`);
       router.push("/");
-    }, 1200);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to create account");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -358,23 +305,6 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {/* Remember me */}
-                  <div className="flex items-center space-x-2 pt-1">
-                    <input
-                      type="checkbox"
-                      id="remember"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-ring cursor-pointer"
-                    />
-                    <label 
-                      htmlFor="remember" 
-                      className="text-xs font-semibold text-muted-foreground select-none cursor-pointer"
-                    >
-                      Keep me logged in on this device
-                    </label>
-                  </div>
-
                   {/* Submit Button */}
                   <Button 
                     type="submit" 
@@ -442,7 +372,7 @@ export default function LoginPage() {
                       <Input
                         id="reg-password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Minimum 6 characters"
+                        placeholder="Minimum 8 characters"
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
                         className="pl-10 pr-10 h-10 border-border bg-surface"
@@ -463,31 +393,9 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {/* Role Selection */}
-                  <div className="space-y-2">
-                    <Label>Select Workspace Role</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { role: "member" as Role, label: "Member", icon: User },
-                        { role: "head" as Role, label: "Head", icon: Users },
-                        { role: "admin" as Role, label: "Admin", icon: Shield }
-                      ].map((item) => (
-                        <button
-                          key={item.role}
-                          type="button"
-                          onClick={() => setSelectedRole(item.role)}
-                          className={`flex flex-col items-center p-2 rounded-xl border text-center transition-all cursor-pointer ${
-                            selectedRole === item.role
-                              ? "border-primary bg-primary-light/10 text-primary-dark shadow-soft font-semibold"
-                              : "border-border-soft bg-surface text-muted-foreground hover:bg-surface-hover"
-                          }`}
-                        >
-                          <item.icon className={`h-4.5 w-4.5 mb-1 ${selectedRole === item.role ? "text-primary-dark" : "text-muted-foreground"}`} />
-                          <span className="text-xs">{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    New accounts start as Staff. An admin can promote users after registration.
+                  </p>
 
                   {/* Submit Button */}
                   <Button 
@@ -507,39 +415,6 @@ export default function LoginPage() {
                 </motion.form>
               )}
             </AnimatePresence>
-
-            {/* Quick Demo Divider */}
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border-soft" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-3 text-muted-foreground font-semibold tracking-wider">
-                  Quick Demo Accounts
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Demo Buttons */}
-            <div className="flex flex-col gap-2.5">
-              {demoAccounts.map((acc) => (
-                <button
-                  key={acc.id}
-                  type="button"
-                  onClick={() => handleDemoLogin(acc.role, acc.name)}
-                  className="group relative flex w-full items-center gap-3 rounded-xl border border-border-soft bg-surface p-3 text-left transition-all hover:border-primary/40 hover:bg-surface-hover hover:shadow-soft cursor-pointer"
-                >
-                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white shadow-soft ${acc.color}`}>
-                    <acc.icon className="h-4.5 w-4.5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-foreground leading-none">{acc.name}</p>
-                    <p className="text-[10px] font-semibold text-muted-foreground leading-none mt-1">{acc.title}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 -translate-x-1 transition-all group-hover:translate-x-0 group-hover:text-primary-dark group-hover:opacity-100" />
-                </button>
-              ))}
-            </div>
 
           </div>
         </div>
